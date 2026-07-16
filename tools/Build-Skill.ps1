@@ -1,12 +1,13 @@
-﻿<#
+<#
 .SYNOPSIS
     (Re)construit dist/desktop-env-backup.skill a partir de skill/SKILL.md et
     des scripts de scripts/.
 
 .DESCRIPTION
     Assemble une archive .skill dont les entrees utilisent des separateurs "/"
-    (exigence de l'installeur de skills). A lancer apres toute modification de
-    SKILL.md ou des scripts. Source unique de verite : le dossier scripts/.
+    (exigence de l'installeur de skills). Les noms d'entrees sont construits
+    explicitement (aucun calcul de chemin relatif), donc portable sur toute
+    machine y compris les runners CI. Source unique de verite : scripts/.
 #>
 
 [CmdletBinding()]
@@ -15,33 +16,33 @@ param(
 )
 
 $ErrorActionPreference = 'Stop'
-$repo  = Split-Path -Parent $PSScriptRoot          # racine du depot (parent de tools/)
-$build = Join-Path $env:TEMP ("skillbuild-" + [guid]::NewGuid().ToString('N'))
-$dist  = Join-Path $repo 'dist'
-$out   = Join-Path $dist ($Name + '.skill')
-
-New-Item -ItemType Directory -Force -Path (Join-Path $build 'scripts') | Out-Null
+$repo = Split-Path -Parent $PSScriptRoot
+$dist = Join-Path $repo 'dist'
+$out  = Join-Path $dist ($Name + '.skill')
 New-Item -ItemType Directory -Force -Path $dist | Out-Null
 
-Copy-Item (Join-Path $repo 'skill\SKILL.md') (Join-Path $build 'SKILL.md')
-Get-ChildItem (Join-Path $repo 'scripts') -File -Filter '*.ps1' |
-    ForEach-Object { Copy-Item $_.FullName (Join-Path $build 'scripts') }
+# Table : nom dans l'archive (avec "/") -> fichier source
+$map = [ordered]@{}
+$map['SKILL.md'] = (Join-Path $repo 'skill\SKILL.md')
+Get-ChildItem (Join-Path $repo 'scripts') -File -Filter '*.ps1' | Sort-Object Name | ForEach-Object {
+    $map['scripts/' + $_.Name] = $_.FullName
+}
 
 Add-Type -AssemblyName System.IO.Compression | Out-Null
 Add-Type -AssemblyName System.IO.Compression.FileSystem | Out-Null
 if (Test-Path -LiteralPath $out) { Remove-Item -LiteralPath $out -Force }
-$build = (Resolve-Path -LiteralPath $build).Path
-$base = $build.TrimEnd('\')
+
 $zip = [System.IO.Compression.ZipFile]::Open($out, 'Create')
 try {
-    Get-ChildItem -LiteralPath $build -Recurse -File | ForEach-Object {
-        $rel = $_.FullName.Substring($base.Length).TrimStart('\','/').Replace('\','/')
-        [System.IO.Compression.ZipFileExtensions]::CreateEntryFromFile($zip, $_.FullName, $rel) | Out-Null
-        Write-Host "  + $rel"
+    foreach ($arc in $map.Keys) {
+        $src = $map[$arc]
+        if (-not (Test-Path -LiteralPath $src)) { throw "Fichier source introuvable : $src" }
+        [System.IO.Compression.ZipFileExtensions]::CreateEntryFromFile($zip, $src, $arc) | Out-Null
+        Write-Host "  + $arc"
     }
-} finally { $zip.Dispose() }
+} finally {
+    $zip.Dispose()
+}
 
-Remove-Item -LiteralPath $build -Recurse -Force
 Write-Host ""
 Write-Host "OK  $out" -ForegroundColor Green
-
