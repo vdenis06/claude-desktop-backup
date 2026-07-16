@@ -4,6 +4,7 @@
 ![PowerShell](https://img.shields.io/badge/PowerShell-5.1%2B-5391FE)
 ![License](https://img.shields.io/badge/license-MIT-green)
 ![Version](https://img.shields.io/badge/version-1.0.0-brightgreen)
+[![Made with Claude](https://img.shields.io/badge/Made%20with-Claude-D97757)](https://claude.ai)
 
 Sauvegardez et restaurez toute la **configuration et la personnalisation** de
 Claude Desktop sur Windows : serveurs MCP, extensions, plugins, skills
@@ -163,5 +164,6 @@ MIT — voir [LICENSE](LICENSE).
 Auteur : **vdenis06** — https://github.com/vdenis06
 
 Ce projet a été **généré entièrement avec l'aide de Claude** (Anthropic).
+
 
 
