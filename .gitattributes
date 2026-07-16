@@ -1,0 +1,12 @@
+# Normalisation des fins de ligne
+* text=auto eol=lf
+
+# Scripts et docs : LF
+*.ps1 text eol=lf
+*.md  text eol=lf
+*.txt text eol=lf
+VERSION text eol=lf
+
+# Binaires (ne pas convertir)
+*.skill binary
+*.zip   binary

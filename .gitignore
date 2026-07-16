@@ -1,0 +1,17 @@
+# Sauvegardes locales (ne jamais committer : contiennent des secrets)
+Claude-Backups/
+claude-backup-*/
+claude-backup-*.zip
+
+# Build temporaire du skill
+build/
+skillbuild-*/
+
+# Fichiers système
+Thumbs.db
+Desktop.ini
+.DS_Store
+
+# Editeurs
+.vscode/
+*.swp
