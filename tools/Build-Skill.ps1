@@ -1,4 +1,4 @@
-<#
+﻿<#
 .SYNOPSIS
     (Re)construit dist/desktop-env-backup.skill a partir de skill/SKILL.md et
     des scripts de scripts/.
@@ -30,7 +30,8 @@ Get-ChildItem (Join-Path $repo 'scripts') -File -Filter '*.ps1' |
 Add-Type -AssemblyName System.IO.Compression | Out-Null
 Add-Type -AssemblyName System.IO.Compression.FileSystem | Out-Null
 if (Test-Path -LiteralPath $out) { Remove-Item -LiteralPath $out -Force }
-$base = (Resolve-Path -LiteralPath $build).Path
+$build = (Resolve-Path -LiteralPath $build).Path
+$base = $build.TrimEnd('\')
 $zip = [System.IO.Compression.ZipFile]::Open($out, 'Create')
 try {
     Get-ChildItem -LiteralPath $build -Recurse -File | ForEach-Object {
@@ -43,3 +44,4 @@ try {
 Remove-Item -LiteralPath $build -Recurse -Force
 Write-Host ""
 Write-Host "OK  $out" -ForegroundColor Green
+
