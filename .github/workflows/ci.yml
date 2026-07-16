@@ -1,0 +1,57 @@
+name: CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  lint-and-build:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install PSScriptAnalyzer
+        shell: pwsh
+        run: |
+          Set-PSRepository -Name PSGallery -InstallationPolicy Trusted
+          Install-Module PSScriptAnalyzer -Scope CurrentUser -Force
+
+      - name: Lint PowerShell (echec sur erreurs)
+        shell: pwsh
+        run: |
+          $results = Invoke-ScriptAnalyzer -Path . -Recurse -Severity @('Error','Warning')
+          $results | Format-Table -AutoSize
+          if ($results | Where-Object { $_.Severity -eq 'Error' }) {
+            throw "PSScriptAnalyzer a trouve des erreurs."
+          }
+
+      - name: Build skill
+        shell: pwsh
+        run: ./tools/Build-Skill.ps1
+
+      - name: Verify .skill archive
+        shell: pwsh
+        run: |
+          Add-Type -AssemblyName System.IO.Compression.FileSystem
+          $zip = [System.IO.Compression.ZipFile]::OpenRead((Resolve-Path './dist/desktop-env-backup.skill'))
+          $names = $zip.Entries | ForEach-Object { $_.FullName }
+          $zip.Dispose()
+          $names
+          if ($names -match '\\') { throw "Separateur backslash dans l'archive .skill" }
+          foreach ($e in @('SKILL.md','scripts/Backup-ClaudeEnv.ps1','scripts/Restore-ClaudeEnv.ps1','scripts/Install-Schedule.ps1')) {
+            if ($names -notcontains $e) { throw "Entree manquante: $e" }
+          }
+          Write-Host "Archive .skill OK"
+
+      - name: Verify version consistency
+        shell: pwsh
+        run: |
+          $v = (Get-Content ./VERSION -Raw).Trim()
+          $pattern = "badge/version-" + [regex]::Escape($v) + "-"
+          if (-not (Select-String -Path ./README.md -Pattern $pattern)) {
+            throw "Le badge README ne correspond pas a VERSION ($v)"
+          }
+          Write-Host "Version coherente: $v"

@@ -1,5 +1,6 @@
 ﻿# Claude Desktop Backup (Windows)
 
+[![CI](https://github.com/vdenis06/claude-desktop-backup/actions/workflows/ci.yml/badge.svg)](https://github.com/vdenis06/claude-desktop-backup/actions/workflows/ci.yml)
 ![Platform](https://img.shields.io/badge/platform-Windows-blue)
 ![PowerShell](https://img.shields.io/badge/PowerShell-5.1%2B-5391FE)
 ![License](https://img.shields.io/badge/license-MIT-green)
@@ -164,6 +165,7 @@ MIT — voir [LICENSE](LICENSE).
 Auteur : **vdenis06** — https://github.com/vdenis06
 
 Ce projet a été **généré entièrement avec l'aide de Claude** (Anthropic).
+
 
 
 
