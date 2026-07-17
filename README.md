@@ -144,6 +144,27 @@ Le script assemble `SKILL.md` + `scripts/*.ps1` dans une archive à séparateurs
 
 ---
 
+## Installer via une marketplace Claude Code
+
+Ce dépôt est aussi une **marketplace de plugins Claude Code** : il expose le skill
+`desktop-env-backup` comme plugin installable.
+
+```shell
+# Ajouter la marketplace (depuis le dépôt Git)
+/plugin marketplace add vdenis06/claude-desktop-backup
+
+# Installer le plugin
+/plugin install desktop-env-backup@vdenis06-tools
+```
+
+Le skill est alors disponible dans tes conversations (« sauvegarde mon
+environnement Claude »). Les scripts PowerShell sont accessibles au plugin via
+`${CLAUDE_PLUGIN_ROOT}/scripts/`.
+
+Manifestes : `.claude-plugin/marketplace.json` (catalogue) et
+`.claude-plugin/plugin.json` (plugin). Le skill vit sous
+`skills/desktop-env-backup/`.
+
 ## Limites
 
 - Windows uniquement.
@@ -165,6 +186,7 @@ MIT — voir [LICENSE](LICENSE).
 Auteur : **vdenis06** — https://github.com/vdenis06
 
 Ce projet a été **généré entièrement avec l'aide de Claude** (Anthropic).
+
 
 
 

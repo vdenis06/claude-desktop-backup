@@ -1,0 +1,14 @@
+{
+  "name": "vdenis06-tools",
+  "owner": {
+    "name": "vdenis06",
+    "url": "https://github.com/vdenis06"
+  },
+  "plugins": [
+    {
+      "name": "desktop-env-backup",
+      "source": "./",
+      "description": "Sauvegarde et restauration de l'environnement Claude Desktop (Windows) : config, serveurs MCP, extensions, plugins et skills."
+    }
+  ]
+}

@@ -1,0 +1,14 @@
+{
+  "name": "desktop-env-backup",
+  "displayName": "Claude Desktop Backup",
+  "version": "1.0.0",
+  "description": "Sauvegarde et restauration de l'environnement Claude Desktop (Windows) : config, serveurs MCP, extensions, plugins et skills.",
+  "author": {
+    "name": "vdenis06",
+    "url": "https://github.com/vdenis06"
+  },
+  "homepage": "https://github.com/vdenis06/claude-desktop-backup",
+  "repository": "https://github.com/vdenis06/claude-desktop-backup",
+  "license": "MIT",
+  "keywords": ["backup", "restore", "claude-desktop", "windows", "powershell", "mcp"]
+}
