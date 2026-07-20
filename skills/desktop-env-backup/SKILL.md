@@ -75,4 +75,4 @@ Sauvegarde : `python .../claude_backup.py` (`--full`, `--destination`,
 `cloud/RESTORE.md`). Fermer Claude avant de restaurer ; reconnecter les
 connecteurs OAuth.
 
-<!-- version: 1.0.0 -->
+<!-- version: 2.0.0 -->

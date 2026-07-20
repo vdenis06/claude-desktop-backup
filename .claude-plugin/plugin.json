@@ -1,7 +1,7 @@
 {
   "name": "desktop-env-backup",
   "displayName": "Claude Desktop Backup",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "description": "Back up & restore the local Claude Desktop environment (Windows, macOS, Linux) — config, MCP servers, extensions, plugins, skills. Sauvegarde et restauration de l'environnement Claude Desktop.",
   "author": {
     "name": "vdenis06",
