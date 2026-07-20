@@ -99,7 +99,7 @@ def _backup_configs(src, backup, logfile, include_secrets):
             _log(logfile, f"  + {cfg.name}")
             continue
         try:
-            data = json.loads(cfg.read_text(encoding="utf-8"))
+            data = json.loads(cfg.read_text(encoding="utf-8-sig"))
         except (ValueError, OSError):
             _log(logfile, f"  ! {cfg.name} illisible JSON -> ignore (evite fuite secret)")
             continue
@@ -153,9 +153,10 @@ def _make_zip(backup_dir):
     zip_path = Path(str(backup_dir) + ".zip")
     if zip_path.exists():
         zip_path.unlink()
+    secrets_path = backup_dir / SECRETS_FILE
     with zipfile.ZipFile(zip_path, "w", zipfile.ZIP_DEFLATED) as zf:
         for f in backup_dir.rglob("*"):
-            if f.is_file() and f.name != SECRETS_FILE:
+            if f.is_file() and f != secrets_path:
                 zf.write(f, f.relative_to(backup_dir))
     return zip_path
 
