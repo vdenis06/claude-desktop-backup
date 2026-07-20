@@ -1,0 +1,502 @@
+# Instincts generated from https://github.com/vdenis06/claude-desktop-backup
+# Generated: 2026-07-20T09:36:34.938Z
+# Version: 2.0
+# NOTE: This file supplements (does not replace) any existing curated instincts.
+# High-confidence manually curated instincts should be preserved alongside these.
+
+---
+id: claude-desktop-backup-commit-conventional
+trigger: "when writing a commit message"
+confidence: 0.85
+domain: git
+source: repo-analysis
+source_repo: https://github.com/vdenis06/claude-desktop-backup
+---
+
+# Claude Desktop Backup Commit Conventional
+
+## Action
+
+Use conventional commit format with prefixes: feat, docs, chore
+
+## Evidence
+
+- 6 commits analyzed
+- Detected conventional commit pattern
+- Examples: feat(local): resolution des chemins Claude multi-plateforme + tests, docs(cloud): runbooks bilingues export inventaire/projet + restauration cloud
+
+---
+id: claude-desktop-backup-commit-length
+trigger: "when writing a commit message"
+confidence: 0.6
+domain: git
+source: repo-analysis
+source_repo: https://github.com/vdenis06/claude-desktop-backup
+---
+
+# Claude Desktop Backup Commit Length
+
+## Action
+
+Write moderate-length commit messages (~65 characters)
+
+## Evidence
+
+- Average commit message length: 65 chars
+- Based on 6 commits
+
+---
+id: claude-desktop-backup-naming-files
+trigger: "when creating a new file"
+confidence: 0.8
+domain: code-style
+source: repo-analysis
+source_repo: https://github.com/vdenis06/claude-desktop-backup
+---
+
+# Claude Desktop Backup Naming Files
+
+## Action
+
+Use camelCase naming convention
+
+## Evidence
+
+- Analyzed file naming patterns in repository
+- Dominant pattern: camelCase
+
+---
+id: claude-desktop-backup-import-relative
+trigger: "when importing modules"
+confidence: 0.75
+domain: code-style
+source: repo-analysis
+source_repo: https://github.com/vdenis06/claude-desktop-backup
+---
+
+# Claude Desktop Backup Import Relative
+
+## Action
+
+Use relative imports for project files
+
+## Evidence
+
+- Import analysis shows relative import pattern
+- Example: import { x } from '../lib/x'
+
+---
+id: claude-desktop-backup-export-style
+trigger: "when exporting from a module"
+confidence: 0.7
+domain: code-style
+source: repo-analysis
+source_repo: https://github.com/vdenis06/claude-desktop-backup
+---
+
+# Claude Desktop Backup Export Style
+
+## Action
+
+Prefer named exports
+
+## Evidence
+
+- Export pattern analysis
+- Dominant style: named
+
+---
+id: claude-desktop-backup-test-naming
+trigger: "when creating a test file"
+confidence: 0.85
+domain: testing
+source: repo-analysis
+source_repo: https://github.com/vdenis06/claude-desktop-backup
+---
+
+# Claude Desktop Backup Test Naming
+
+## Action
+
+Name test files using the pattern: *.test.ts
+
+## Evidence
+
+- File pattern: *.test.ts
+- Consistent across test files
+
+---
+id: claude-desktop-backup-workflow-feature-implementation-with-tests
+trigger: "when doing feature implementation with tests"
+confidence: 0.65
+domain: workflow
+source: repo-analysis
+source_repo: https://github.com/vdenis06/claude-desktop-backup
+---
+
+# Claude Desktop Backup Workflow Feature Implementation With Tests
+
+## Action
+
+Follow the feature-implementation-with-tests workflow:
+1. Implement or update Python logic in local/*.py
+2. Write or update corresponding tests in local/tests/test_*.py
+3. Verify multi-platform support (Windows/macOS/Linux) in implementation and tests
+
+## Evidence
+
+- Workflow detected from commit patterns
+- Frequency: ~3x per month
+- Files: local/*.py, local/tests/test_*.py
+
+---
+id: claude-desktop-backup-workflow-documentation-workflow-bilingual
+trigger: "when doing documentation workflow bilingual"
+confidence: 0.6
+domain: workflow
+source: repo-analysis
+source_repo: https://github.com/vdenis06/claude-desktop-backup
+---
+
+# Claude Desktop Backup Workflow Documentation Workflow Bilingual
+
+## Action
+
+Follow the documentation-workflow-bilingual workflow:
+1. Create or update markdown files in cloud/*.md or skills/*/SKILL.md
+2. Ensure content is present in both English and French
+3. Reference new or updated features as needed
+
+## Evidence
+
+- Workflow detected from commit patterns
+- Frequency: ~2x per month
+- Files: cloud/*.md, skills/*/SKILL.md, README.md
+
+---
+id: claude-desktop-backup-workflow-release-versioning-and-changelog
+trigger: "when doing release versioning and changelog"
+confidence: 0.55
+domain: workflow
+source: repo-analysis
+source_repo: https://github.com/vdenis06/claude-desktop-backup
+---
+
+# Claude Desktop Backup Workflow Release Versioning And Changelog
+
+## Action
+
+Follow the release-versioning-and-changelog workflow:
+1. Update VERSION file
+2. Update .claude-plugin/plugin.json and/or .claude-plugin/marketplace.json with new version and metadata
+3. Update CHANGELOG.md with summary of changes
+4. Update README.md as needed
+5. Rebuild dist/desktop-env-backup.skill
+6. Update skills/*/SKILL.md if necessary
+
+## Evidence
+
+- Workflow detected from commit patterns
+- Frequency: ~1x per month
+- Files: VERSION, .claude-plugin/plugin.json, .claude-plugin/marketplace.json
+
+---
+id: claude-desktop-backup-instinct-file-naming-camelCase
+trigger: "When creating or renaming a source code file."
+confidence: 0.8
+domain: code-style
+source: repo-analysis
+source_repo: vdenis06/claude-desktop-backup
+---
+
+# Claude Desktop Backup Instinct File Naming CamelCase
+
+## Action
+
+Name the file using camelCase (e.g., myModule.py).
+
+## Evidence
+
+- namingConventions.files = camelCase
+- Pattern in repository file names
+
+---
+id: claude-desktop-backup-instinct-function-naming-camelCase
+trigger: "When defining a new function."
+confidence: 0.8
+domain: code-style
+source: repo-analysis
+source_repo: vdenis06/claude-desktop-backup
+---
+
+# Claude Desktop Backup Instinct Function Naming CamelCase
+
+## Action
+
+Name the function using camelCase (e.g., processBackup()).
+
+## Evidence
+
+- namingConventions.functions = camelCase
+- Pattern in Python code
+
+---
+id: claude-desktop-backup-instinct-class-naming-PascalCase
+trigger: "When defining a new class."
+confidence: 0.8
+domain: code-style
+source: repo-analysis
+source_repo: vdenis06/claude-desktop-backup
+---
+
+# Claude Desktop Backup Instinct Class Naming PascalCase
+
+## Action
+
+Name the class using PascalCase (e.g., BackupManager).
+
+## Evidence
+
+- namingConventions.classes = PascalCase
+- Pattern in Python code
+
+---
+id: claude-desktop-backup-instinct-constant-naming-SCREAMING_SNAKE_CASE
+trigger: "When defining a constant."
+confidence: 0.8
+domain: code-style
+source: repo-analysis
+source_repo: vdenis06/claude-desktop-backup
+---
+
+# Claude Desktop Backup Instinct Constant Naming SCREAMING_SNAKE_CASE
+
+## Action
+
+Name the constant using SCREAMING_SNAKE_CASE (e.g., DEFAULT_PATH).
+
+## Evidence
+
+- namingConventions.constants = SCREAMING_SNAKE_CASE
+- Pattern in Python code
+
+---
+id: claude-desktop-backup-instinct-import-style-relative
+trigger: "When importing modules within the package."
+confidence: 0.8
+domain: code-style
+source: repo-analysis
+source_repo: vdenis06/claude-desktop-backup
+---
+
+# Claude Desktop Backup Instinct Import Style Relative
+
+## Action
+
+Use relative imports.
+
+## Evidence
+
+- importStyle = relative
+- Pattern in Python code
+
+---
+id: claude-desktop-backup-instinct-export-style-named
+trigger: "When exporting functions or classes."
+confidence: 0.7
+domain: code-style
+source: repo-analysis
+source_repo: vdenis06/claude-desktop-backup
+---
+
+# Claude Desktop Backup Instinct Export Style Named
+
+## Action
+
+Use named exports.
+
+## Evidence
+
+- exportStyle = named
+- Pattern in Python code
+
+---
+id: claude-desktop-backup-instinct-test-file-pattern
+trigger: "When creating a new test file."
+confidence: 0.8
+domain: testing
+source: repo-analysis
+source_repo: vdenis06/claude-desktop-backup
+---
+
+# Claude Desktop Backup Instinct Test File Pattern
+
+## Action
+
+Name the file using the pattern test_*.py and place it in local/tests/.
+
+## Evidence
+
+- testing.filePattern = *.test.ts (adapted for Python: test_*.py)
+- Pattern in local/tests/
+
+---
+id: claude-desktop-backup-instinct-unit-tests-for-features
+trigger: "When implementing or updating a feature in local/*.py."
+confidence: 0.9
+domain: testing
+source: repo-analysis
+source_repo: vdenis06/claude-desktop-backup
+---
+
+# Claude Desktop Backup Instinct Unit Tests For Features
+
+## Action
+
+Write or update corresponding unit tests in local/tests/test_*.py.
+
+## Evidence
+
+- feature-implementation-with-tests workflow
+- Pattern in commit sequences
+
+---
+id: claude-desktop-backup-instinct-test-multi-platform
+trigger: "When writing or updating tests for local Python code."
+confidence: 0.85
+domain: testing
+source: repo-analysis
+source_repo: vdenis06/claude-desktop-backup
+---
+
+# Claude Desktop Backup Instinct Test Multi Platform
+
+## Action
+
+Ensure tests cover multi-platform support (Windows/macOS/Linux).
+
+## Evidence
+
+- feature-implementation-with-tests workflow
+- Commit: 'Verify multi-platform support...'
+
+---
+id: claude-desktop-backup-instinct-git-conventional-commits
+trigger: "When writing a commit message."
+confidence: 0.9
+domain: git
+source: repo-analysis
+source_repo: vdenis06/claude-desktop-backup
+---
+
+# Claude Desktop Backup Instinct Git Conventional Commits
+
+## Action
+
+Use the conventional commit format: <type>(<scope>): <description>.
+
+## Evidence
+
+- commits.type = conventional
+- Examples: 'feat(local): ...', 'docs(cloud): ...'
+
+---
+id: claude-desktop-backup-instinct-git-commit-prefixes
+trigger: "When categorizing a commit."
+confidence: 0.9
+domain: git
+source: repo-analysis
+source_repo: vdenis06/claude-desktop-backup
+---
+
+# Claude Desktop Backup Instinct Git Commit Prefixes
+
+## Action
+
+Use one of the prefixes: feat, docs, chore.
+
+## Evidence
+
+- commits.prefixes = [feat, docs, chore]
+- Pattern in commit examples
+
+---
+id: claude-desktop-backup-instinct-git-commit-length
+trigger: "When writing a commit message."
+confidence: 0.7
+domain: git
+source: repo-analysis
+source_repo: vdenis06/claude-desktop-backup
+---
+
+# Claude Desktop Backup Instinct Git Commit Length
+
+## Action
+
+Keep the commit message concise, around 65 characters on average.
+
+## Evidence
+
+- commits.averageLength = 65
+- Pattern in commit examples
+
+---
+id: claude-desktop-backup-instinct-workflow-feature-implementation
+trigger: "When adding a new capability to the local backup/restore system."
+confidence: 0.95
+domain: workflow
+source: repo-analysis
+source_repo: vdenis06/claude-desktop-backup
+---
+
+# Claude Desktop Backup Instinct Workflow Feature Implementation
+
+## Action
+
+Implement or update Python logic in local/*.py, then write or update corresponding tests in local/tests/test_*.py, ensuring multi-platform support.
+
+## Evidence
+
+- feature-implementation-with-tests workflow
+- Pattern in commit sequences and files
+
+---
+id: claude-desktop-backup-instinct-workflow-documentation-bilingual
+trigger: "When documenting new features, workflows, or updating existing docs."
+confidence: 0.9
+domain: workflow
+source: repo-analysis
+source_repo: vdenis06/claude-desktop-backup
+---
+
+# Claude Desktop Backup Instinct Workflow Documentation Bilingual
+
+## Action
+
+Create or update markdown files in cloud/*.md, skills/*/SKILL.md, or README.md, ensuring content is present in both English and French.
+
+## Evidence
+
+- documentation-workflow-bilingual workflow
+- Pattern in commit sequences and files
+
+---
+id: claude-desktop-backup-instinct-workflow-release-versioning
+trigger: "When preparing to publish a new version of the project."
+confidence: 0.95
+domain: workflow
+source: repo-analysis
+source_repo: vdenis06/claude-desktop-backup
+---
+
+# Claude Desktop Backup Instinct Workflow Release Versioning
+
+## Action
+
+Update VERSION, .claude-plugin/plugin.json, .claude-plugin/marketplace.json, CHANGELOG.md, README.md, rebuild dist/desktop-env-backup.skill, and update skills/*/SKILL.md if necessary.
+
+## Evidence
+
+- release-versioning-and-changelog workflow
+- Pattern in commit sequences and files
+
