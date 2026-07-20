@@ -22,9 +22,14 @@ New-Item -ItemType Directory -Force -Path $dist | Out-Null
 
 $map = [ordered]@{}
 $map['SKILL.md'] = (Join-Path $repo 'skills\desktop-env-backup\SKILL.md')
-Get-ChildItem (Join-Path $repo 'scripts') -File -Filter '*.ps1' | Sort-Object Name | ForEach-Object {
-    $map['scripts/' + $_.Name] = $_.FullName
+Get-ChildItem (Join-Path $repo 'local') -File -Filter '*.py' | Sort-Object Name | ForEach-Object {
+    $map['local/' + $_.Name] = $_.FullName
 }
+Get-ChildItem (Join-Path $repo 'cloud') -File -Filter '*.md' | Sort-Object Name | ForEach-Object {
+    $map['cloud/' + $_.Name] = $_.FullName
+}
+$sched = Join-Path $repo 'scripts\Install-Schedule.ps1'
+if (Test-Path -LiteralPath $sched) { $map['scripts/Install-Schedule.ps1'] = $sched }
 
 Add-Type -AssemblyName System.IO.Compression | Out-Null
 Add-Type -AssemblyName System.IO.Compression.FileSystem | Out-Null
