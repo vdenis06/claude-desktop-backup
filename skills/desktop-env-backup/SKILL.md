@@ -1,84 +1,78 @@
 ---
 name: desktop-env-backup
 description: >-
-  Sauvegarde et restauration de l'environnement Claude Desktop (Windows) via
-  Desktop Commander. Utiliser quand l'utilisateur dit « sauvegarde mon
-  environnement Claude », « backup Claude », « sauvegarde ma config Claude »,
-  « sauvegarde complète de Claude Desktop », « restaure mon environnement
-  Claude », « restaure ma config Claude », ou avant une réinstallation / mise à
-  jour risquée de Claude Desktop. Copie config, serveurs MCP, extensions DXT,
-  plugins & skills marketplace et skills perso vers un dossier daté + archive
-  .zip (avec rétention), et restaure depuis une sauvegarde.
+  Back up and restore the local Claude Desktop environment (Windows, macOS,
+  Linux) via Desktop Commander. Sauvegarde et restauration de l'environnement
+  Claude Desktop. Use when the user says "back up my Claude environment",
+  "backup Claude", "restore my Claude config", « sauvegarde mon environnement
+  Claude », « restaure ma config Claude », or before a risky reinstall/update.
+  Copies config, MCP servers, DXT extensions, marketplace plugins & skills and
+  personal skills to a dated folder + .zip; MCP secrets are isolated out of the
+  shareable zip. Restores same-machine or into a new environment.
 ---
 
-# desktop-env-backup — Sauvegarde / restauration de Claude Desktop
+# desktop-env-backup — Backup / restore Claude Desktop (multi-OS)
 
-Automatise la sauvegarde et la restauration de l'environnement Claude Desktop
-sur **Windows**, via **Desktop Commander** (MCP local) qui exécute les scripts
-PowerShell fournis.
+Cross-platform backup and restore of the local Claude Desktop environment, run
+through **Desktop Commander** (local MCP) which executes the Python scripts.
 
-## Prérequis
+## Prerequisites / Prérequis
+- **Desktop Commander** available (MCP `plugin:desktop-commander`). If its tools
+  are deferred, load them via ToolSearch (`query "desktop-commander"`).
+- **Python 3.8+** on PATH. Config auto-detected per OS (Windows
+  `%APPDATA%\Claude`, macOS `~/Library/Application Support/Claude`, Linux
+  `~/.config/Claude`); override with `CLAUDE_CONFIG_DIR`.
 
-- **Desktop Commander** disponible (serveur MCP `plugin:desktop-commander`).
-  Si ses outils sont différés, les charger via ToolSearch (`query "desktop-commander"`).
-- **Windows** + **PowerShell 5.1+** (inclus). Config Claude dans `%APPDATA%\Claude`.
+## Where the scripts are
+- Installed as a **plugin**: `${CLAUDE_PLUGIN_ROOT}/local/`.
+- Installed as a **.skill file**: the `local/` folder of this skill.
 
-## Où sont les scripts
+## What is backed up
+Config (`claude_desktop_config.json` + variants, `config.json`, `Preferences`,
+`Local State`, state files), DXT extensions, marketplace plugins & skills
+(`MarketPlace/`), personal skills (`local-agent-mode-sessions/skills-plugin`)
+and project shadows (`metadata.json`/`memory.md`/`syncs.json`/`CLAUDE.md`).
+Regenerable caches are skipped. **MCP secrets** are moved to `secrets.json`,
+excluded from the `.zip` by default.
 
-- Installé comme **plugin Claude Code / marketplace** : à `${CLAUDE_PLUGIN_ROOT}/scripts/`.
-- Installé comme **fichier .skill** : dans le dossier `scripts/` de ce skill.
+## Procedure — BACKUP
+1. Load Desktop Commander if needed.
+2. Copy the `local/` scripts onto the machine, e.g. into `Claude-Tools/`. Never
+   hardcode a username (use the OS home/env).
+3. Run (start_process, timeout >= 180000 ms):
+   `python <path>/claude_backup.py [--full] [--destination DIR] [--keep 10]`
+4. Zipping large environments is slow; check `_backup.log` and the `.zip`.
+5. Report the folder and archive paths.
 
-## Ce qui est sauvegardé
+## Procedure — RESTORE
+1. **Close Claude Desktop** (the script refuses if it is open; `--force`).
+2. Same machine:
+   `python <path>/claude_restore.py <folder-or-zip> --mode same-machine`
+   (reinjects secrets from `secrets.json`).
+3. New environment / new account:
+   `python <path>/claude_restore.py <folder-or-zip> --mode new-environment`
+   then follow `cloud/RESTORE.md` to rebuild the account side.
+4. Reconnect OAuth connectors; check Python (`uvx`) / Node (`npx`) for MCP.
 
-Configuration (`claude_desktop_config.json` + ses .bak, `config.json`,
-`Preferences`, `Local State`, fichiers d'état), extensions DXT
-(`Claude Extensions` + `Settings`), plugins & skills marketplace (`MarketPlace\`),
-skills perso (`local-agent-mode-sessions\skills-plugin`) et les
-`metadata.json` / `memory.md` / `syncs.json` des projets. Les caches
-régénérables (VM, Cache, GPUCache, logs…) sont exclus. Mode « cœur » ≈ 80 Mo.
+## Account side (Projects, plugins, connectors)
+The scripts cover local files only. For the account half, follow the bilingual
+runbooks: `cloud/export-inventory.md`, `cloud/export-project.md`,
+`cloud/RESTORE.md`.
 
-## Procédure — SAUVEGARDE
+## Scheduling
+Windows only for now via `scripts/Install-Schedule.ps1` (weekly task, no admin).
+Cross-platform scheduling (cron/launchd) is not yet ported.
 
-1. Charger Desktop Commander si nécessaire.
-2. Déposer les scripts sur la machine : copier `Backup-ClaudeEnv.ps1` (et
-   `Install-Schedule.ps1`) via Desktop Commander dans `%USERPROFILE%\Claude-Tools\`.
-   Déterminer `%USERPROFILE%` avec `$env:USERPROFILE` (jamais de nom d'utilisateur en dur).
-3. Lancer via Desktop Commander `start_process` (timeout ≥ 180000 ms) :
+## ⚠️ Security / Sécurité
+`claude_desktop_config.json` may contain plaintext MCP secrets. By default they
+are isolated into `secrets.json`, kept out of the `.zip`. The `.zip` is
+shareable; the backup folder (with secrets) is not — store it safely.
 
-   ```
-   powershell.exe -NoProfile -ExecutionPolicy Bypass -File "%USERPROFILE%\Claude-Tools\Backup-ClaudeEnv.ps1"
-   ```
+## Procédure (FR, résumé)
+Sauvegarde : `python .../claude_backup.py` (`--full`, `--destination`,
+`--keep`). Restauration : `--mode same-machine` (réinjecte les secrets) ou
+`--mode new-environment` (exclut les fichiers d'identité, puis suivre
+`cloud/RESTORE.md`). Fermer Claude avant de restaurer ; reconnecter les
+connecteurs OAuth.
 
-   Options : `-Full`, `-Destination "D:\..."`, `-Keep 10`.
-4. La compression peut dépasser le timeout : vérifier `_backup.log` et le `.zip`.
-5. Rapporter le chemin du dossier et de l'archive.
-
-## Procédure — RESTAURATION
-
-1. **Claude Desktop doit être fermé** (option `-Force` pour le fermer).
-2. Déposer `Restore-ClaudeEnv.ps1` dans `%USERPROFILE%\Claude-Tools\`.
-3. Lancer :
-
-   ```
-   powershell.exe -NoProfile -ExecutionPolicy Bypass -File "%USERPROFILE%\Claude-Tools\Restore-ClaudeEnv.ps1" -Source "<dossier ou .zip>"
-   ```
-
-   `-Yes` évite la confirmation, `-Force` ferme Claude.
-4. Rappeler : reconnecter les **connecteurs OAuth** (non restaurables) ; vérifier
-   Python (`uvx`) / Node.js (`npx`) pour les serveurs MCP locaux.
-
-## Procédure — PLANIFICATION
-
-```
-powershell.exe -NoProfile -ExecutionPolicy Bypass -File "%USERPROFILE%\Claude-Tools\Install-Schedule.ps1" -Day Friday -Time 12:00 -Keep 10
-```
-
-Supprimer : ajouter `-Remove`.
-
-## ⚠️ Sécurité
-
-`claude_desktop_config.json` peut contenir des **secrets en clair** (tokens,
-mots de passe MCP). La sauvegarde les inclut. Prévenir l'utilisateur de stocker
-le dossier / .zip dans un endroit chiffré et de ne pas le partager.
-
-<!-- version: 1.0.0 -->
+<!-- version: 2.0.0 -->

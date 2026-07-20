@@ -7,31 +7,27 @@ on:
     branches: [ main ]
 
 jobs:
-  lint-and-build:
-    runs-on: windows-latest
+  test:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-latest, macos-latest, ubuntu-latest]
+    runs-on: ${{ matrix.os }}
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Run tests
+        run: python -m unittest discover -s local/tests -p "test_*.py"
 
-      - name: Install PSScriptAnalyzer
-        shell: pwsh
-        run: |
-          Set-PSRepository -Name PSGallery -InstallationPolicy Trusted
-          Install-Module PSScriptAnalyzer -Scope CurrentUser -Force
-
-      - name: Lint PowerShell (echec sur erreurs)
-        shell: pwsh
-        run: |
-          $results = Invoke-ScriptAnalyzer -Path . -Recurse -Severity @('Error','Warning')
-          $results | Format-Table -AutoSize
-          if ($results | Where-Object { $_.Severity -eq 'Error' }) {
-            throw "PSScriptAnalyzer a trouve des erreurs."
-          }
-
+  build-skill:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
       - name: Build skill
         shell: pwsh
         run: ./tools/Build-Skill.ps1
-
       - name: Verify .skill archive
         shell: pwsh
         run: |
@@ -40,18 +36,17 @@ jobs:
           $names = $zip.Entries | ForEach-Object { $_.FullName }
           $zip.Dispose()
           $names
-          if ($names -match '\\') { throw "Separateur backslash dans l'archive .skill" }
-          foreach ($e in @('SKILL.md','scripts/Backup-ClaudeEnv.ps1','scripts/Restore-ClaudeEnv.ps1','scripts/Install-Schedule.ps1')) {
-            if ($names -notcontains $e) { throw "Entree manquante: $e" }
+          if ($names -match '\\') { throw "Backslash separator in .skill archive" }
+          foreach ($e in @('SKILL.md','local/claude_backup.py','local/claude_restore.py','local/paths.py','local/vault.py')) {
+            if ($names -notcontains $e) { throw "Missing entry: $e" }
           }
           Write-Host "Archive .skill OK"
-
       - name: Verify version consistency
         shell: pwsh
         run: |
           $v = (Get-Content ./VERSION -Raw).Trim()
           $pattern = "badge/version-" + [regex]::Escape($v) + "-"
           if (-not (Select-String -Path ./README.md -Pattern $pattern)) {
-            throw "Le badge README ne correspond pas a VERSION ($v)"
+            throw "README badge does not match VERSION ($v)"
           }
-          Write-Host "Version coherente: $v"
+          Write-Host "Version consistent: $v"

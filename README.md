@@ -1,193 +1,129 @@
-﻿# Claude Desktop Backup (Windows)
+# Claude Desktop Backup / Sauvegarde Claude Desktop
 
-[![CI](https://github.com/vdenis06/claude-desktop-backup/actions/workflows/ci.yml/badge.svg)](https://github.com/vdenis06/claude-desktop-backup/actions/workflows/ci.yml)
-![Platform](https://img.shields.io/badge/platform-Windows-blue)
-![PowerShell](https://img.shields.io/badge/PowerShell-5.1%2B-5391FE)
+![Platform](https://img.shields.io/badge/platform-Windows%20%7C%20macOS%20%7C%20Linux-blue)
+![Python](https://img.shields.io/badge/Python-3.8%2B-3776AB)
 ![License](https://img.shields.io/badge/license-MIT-green)
-![Version](https://img.shields.io/badge/version-1.0.0-brightgreen)
+![Version](https://img.shields.io/badge/version-2.0.0-brightgreen)
 [![Made with Claude](https://img.shields.io/badge/Made%20with-Claude-D97757)](https://claude.ai)
 
-Sauvegardez et restaurez toute la **configuration et la personnalisation** de
-Claude Desktop sur Windows : serveurs MCP, extensions, plugins, skills
-marketplace, skills perso et paramétrage local des projets. Disponible en
-**scripts PowerShell** et en **skill Claude** installable.
+Back up and restore your **Claude Desktop** environment, and rebuild it on another
+machine or account. Cross-platform (Windows, macOS, Linux), 100 % local — nothing
+is sent over the network.
 
-> 100 % local — rien n'est envoyé sur le réseau.
+> English first, français plus bas.
 
----
+## English
 
-## Fonctionnalités
+### What it does
+A Claude setup has two halves, and this tool covers both:
+- **Local half** (files on disk) — `local/` Python scripts back up and restore the
+  config, MCP servers, DXT extensions, marketplace plugins & skills, and personal
+  skills. Fully automated.
+- **Account half** (server side: Projects, connectors, installed plugins) — `cloud/`
+  bilingual runbooks to inventory and rebuild it, since it cannot be copied from disk.
 
-- Sauvegarde datée + archive `.zip`, avec **rétention** configurable.
-- Mode **cœur** (~80 Mo) ou **`-Full`** (tout inclus).
-- Exclusion automatique des caches régénérables (VM, GPUCache, logs…).
-- **Restauration** avec sauvegarde de sécurité préalable de l'existant.
-- **Planification** Windows (tâche hebdomadaire, sans droits admin).
-- **Skill Claude** pour lancer la sauvegarde depuis une conversation.
+### Requirements
+- **Python 3.8+**. Config auto-detected per OS (`%APPDATA%\Claude`,
+  `~/Library/Application Support/Claude`, `~/.config/Claude`); override with
+  `CLAUDE_CONFIG_DIR`.
+- For the **skill**: the **Desktop Commander** MCP in Claude.
 
----
-
-## Structure du dépôt
-
+### Backup
 ```
-claude-desktop-backup/
-├── README.md
-├── LICENSE
-├── CHANGELOG.md
-├── CONTRIBUTING.md
-├── .gitignore
-├── scripts/
-│   ├── Backup-ClaudeEnv.ps1      # sauvegarde (config, extensions, plugins, skills)
-│   ├── Restore-ClaudeEnv.ps1     # restauration depuis un dossier ou un .zip
-│   └── Install-Schedule.ps1      # tâche planifiée (création/suppression)
-├── skill/
-│   └── SKILL.md                  # définition du skill Claude
-├── tools/
-│   └── Build-Skill.ps1           # assemble dist/desktop-env-backup.skill
-└── dist/
-    └── desktop-env-backup.skill  # skill prêt à installer
+python local/claude_backup.py
 ```
+Creates `~/Claude-Backups/claude-backup-<date>/` + a `.zip`.
 
----
-
-## Prérequis
-
-- **Windows 10/11**, **PowerShell 5.1+** (préinstallé).
-- Aucun droit administrateur. Les commandes utilisent `-ExecutionPolicy Bypass`
-  (pas de modification permanente de la politique).
-- Pour restaurer certains **serveurs MCP locaux** : leurs runtimes (souvent
-  **Python** via `uvx`, **Node.js** via `npx`).
-- **Uniquement pour le skill** : le connecteur **Desktop Commander** dans Claude.
-
-> macOS/Linux non couverts (config macOS : `~/Library/Application Support/Claude`).
-
----
-
-## Démarrage rapide
-
-```powershell
-git clone https://github.com/vdenis06/claude-desktop-backup.git
-cd claude-desktop-backup
-
-# Sauvegarde "cœur" (config + personnalisation) + .zip
-powershell -ExecutionPolicy Bypass -File .\scripts\Backup-ClaudeEnv.ps1
-```
-
-Sauvegarde créée dans `%USERPROFILE%\Claude-Backups\claude-backup-<date>\`.
-
-### Options
-
-| Option | Effet |
+| Option | Effect |
 |---|---|
-| `-Full` | Inclut les skills volumineux et l'historique complet des sessions. |
-| `-Destination "D:\Backups"` | Change le dossier de destination. |
-| `-Keep 10` | Sauvegardes à conserver (défaut 10 ; `0` = illimité). |
-| `-MaxItemMB 200` | Seuil d'exclusion des gros skills en mode cœur. |
-| `-NoZip` | Ne crée pas l'archive. |
+| `--full` | Include large skills and full session history. |
+| `--destination DIR` | Change the destination folder. |
+| `--keep N` | Backups to keep (default 10; `0` = unlimited). |
+| `--max-item-mb N` | Core-mode size threshold for large skills (default 200). |
+| `--no-zip` | Skip the archive. |
+| `--include-secrets` | Keep MCP secrets inline (not recommended for sharing). |
 
----
+### Secrets
+By default, MCP secrets in `claude_desktop_config.json` are moved to a separate
+`secrets.json`, **excluded from the `.zip`**. The `.zip` is shareable; the backup
+folder (which holds `secrets.json`) is not — store it safely.
 
-## Planification automatique
-
-```powershell
-powershell -ExecutionPolicy Bypass -File .\scripts\Install-Schedule.ps1 -Day Friday -Time 12:00 -Keep 10
-# Supprimer :
-powershell -ExecutionPolicy Bypass -File .\scripts\Install-Schedule.ps1 -Remove
+### Restore
+Close Claude Desktop first, then:
 ```
+# Same account / new machine (reinjects secrets)
+python local/claude_restore.py <folder-or-zip> --mode same-machine
 
-Tâche hebdomadaire, option *StartWhenAvailable* (rattrape une exécution manquée).
-S'exécute lorsque l'utilisateur est connecté à Windows.
-
----
-
-## Restauration
-
-Fermez Claude Desktop, puis :
-
-```powershell
-powershell -ExecutionPolicy Bypass -File .\scripts\Restore-ClaudeEnv.ps1 -Source "D:\Backups\claude-backup-<date>.zip"
+# New account / new environment (skips identity files, keeps redacted config)
+python local/claude_restore.py <folder-or-zip> --mode new-environment
 ```
+`--force` closes Claude if open; `--yes` skips the prompt; `--target DIR` restores
+elsewhere (for testing). Then follow `cloud/RESTORE.md` for the account side.
 
-`-Force` ferme Claude s'il est ouvert, `-Yes` enchaîne sans confirmation.
-Après restauration : reconnectez votre compte et les **connecteurs OAuth**
-(non restaurables), vérifiez Python/Node.js pour vos serveurs MCP locaux.
+### Account side (Projects, plugins, connectors)
+The scripts cover local files only. To capture and rebuild the account half, follow
+the runbooks: `cloud/export-inventory.md`, `cloud/export-project.md`,
+`cloud/RESTORE.md`.
 
----
+### Install the skill
+- **Marketplace**: `/plugin marketplace add vdenis06/claude-desktop-backup` then
+  `/plugin install desktop-env-backup@vdenis06-tools`.
+- **.skill file**: import `dist/desktop-env-backup.skill` via Settings → Capabilities
+  → Skills. Then say "back up my Claude environment".
 
-## Installer le skill Claude
+### Scheduling & limits
+Scheduling is Windows-only for now via `scripts/Install-Schedule.ps1` (weekly, no
+admin); cron/launchd are not yet ported. OAuth tokens and conversations are never
+exportable (reconnect / re-auth). Full Project enumeration needs the web app or
+account export. A Project's description and custom instructions are re-entered by
+hand on restore.
 
-1. Installez et connectez **Desktop Commander** dans Claude Desktop.
-2. Importez `dist/desktop-env-backup.skill` via **Réglages → Capacités → Skills**.
-3. Dites par ex. « **sauvegarde mon environnement Claude** ».
+### Security & license
+`claude_desktop_config.json` may contain plaintext secrets — keep the backup folder
+safe and, on a leak, revoke and regenerate them. Author: **vdenis06**. MIT. Made
+with Claude.
 
----
+## Français
 
-## Sécurité
+Sauvegardez et restaurez votre environnement **Claude Desktop**, et reconstruisez-le
+sur une autre machine ou un autre compte. Multi-plateforme (Windows, macOS, Linux),
+100 % local.
 
-`claude_desktop_config.json` peut contenir des **secrets en clair** (tokens, mots
-de passe des serveurs MCP). La sauvegarde les inclut : stockez le dossier / `.zip`
-dans un endroit **chiffré** et ne le partagez pas. En cas de fuite, révoquez puis
-régénérez les secrets.
+### Ce que fait l'outil
+Deux moitiés, toutes deux couvertes : la **moitié locale** (`local/`, scripts Python :
+config, serveurs MCP, extensions, plugins et skills) et la **moitié compte** (`cloud/`,
+runbooks : Projets, connecteurs, plugins installés), qui ne se copie pas depuis le disque.
 
----
+### Prérequis
+**Python 3.8+**. Config détectée par OS (override `CLAUDE_CONFIG_DIR`). Pour le skill :
+le MCP **Desktop Commander**.
 
-## Développement — (re)construire le skill
+### Sauvegarde
+`python local/claude_backup.py` → `~/Claude-Backups/claude-backup-<date>/` + `.zip`.
+Options : `--full`, `--destination`, `--keep`, `--max-item-mb`, `--no-zip`,
+`--include-secrets`.
 
-Après modification de `skill/SKILL.md` ou des scripts :
+### Secrets
+Les secrets MCP sont isolés dans `secrets.json`, **hors du `.zip`** par défaut. Le
+`.zip` est partageable ; le dossier (avec `secrets.json`) ne l'est pas.
 
-```powershell
-powershell -ExecutionPolicy Bypass -File .\tools\Build-Skill.ps1
-```
+### Restauration
+Fermer Claude, puis `python local/claude_restore.py <dossier-ou-zip> --mode same-machine`
+(réinjecte les secrets) ou `--mode new-environment` (exclut les fichiers d'identité).
+Options `--force`, `--yes`, `--target`. Puis suivre `cloud/RESTORE.md` pour le compte.
 
-Le script assemble `SKILL.md` + `scripts/*.ps1` dans une archive à séparateurs
-`/` (requis par l'installeur) et produit `dist/desktop-env-backup.skill`.
+### Installer le skill
+Marketplace : `/plugin marketplace add vdenis06/claude-desktop-backup` puis
+`/plugin install desktop-env-backup@vdenis06-tools`. Ou importer
+`dist/desktop-env-backup.skill` (Réglages → Capacités → Skills), puis dire
+« sauvegarde mon environnement Claude ».
 
----
+### Planification, limites & sécurité
+Planification Windows uniquement pour l'instant (`scripts/Install-Schedule.ps1`) ;
+cron/launchd pas encore portés. Jetons OAuth et conversations non exportables.
+Énumération complète des Projets via l'app web / export de compte. Description et
+instructions d'un Projet re-saisies à la main. `claude_desktop_config.json` peut
+contenir des secrets en clair : stockez la sauvegarde dans un endroit sûr.
 
-## Installer via une marketplace Claude Code
-
-Ce dépôt est aussi une **marketplace de plugins Claude Code** : il expose le skill
-`desktop-env-backup` comme plugin installable.
-
-```shell
-# Ajouter la marketplace (depuis le dépôt Git)
-/plugin marketplace add vdenis06/claude-desktop-backup
-
-# Installer le plugin
-/plugin install desktop-env-backup@vdenis06-tools
-```
-
-Le skill est alors disponible dans tes conversations (« sauvegarde mon
-environnement Claude »). Les scripts PowerShell sont accessibles au plugin via
-`${CLAUDE_PLUGIN_ROOT}/scripts/`.
-
-Manifestes : `.claude-plugin/marketplace.json` (catalogue) et
-`.claude-plugin/plugin.json` (plugin). Le skill vit sous
-`skills/desktop-env-backup/`.
-
-## Limites
-
-- Windows uniquement.
-- Connecteurs OAuth non restaurables (jetons côté serveur).
-- Projets et conversations stockés côté claude.ai (reviennent en se reconnectant).
-
----
-
-## Contribuer
-
-Voir [CONTRIBUTING.md](CONTRIBUTING.md). Les PR sont bienvenues.
-
-## Licence
-
-MIT — voir [LICENSE](LICENSE).
-
-## Crédits
-
-Auteur : **vdenis06** — https://github.com/vdenis06
-
-Ce projet a été **généré entièrement avec l'aide de Claude** (Anthropic).
-
-
-
-
-
+### Crédits
+Auteur : **vdenis06**. Licence MIT. Généré avec l'aide de Claude.
